@@ -3,6 +3,15 @@ const productService = require('../services/productsService');
 async function createProduct(req, res) {
     try {
         const {name, price} = req.body;
+        if (!name || !price) return res.status(400).json({
+            error: "name and price are required"
+        });
+        if (typeof(price) !== "number") return res.status(400).json({
+            error: "price must be a number"
+        })
+        if (price < 0 ) return res.status(400).json({
+            error: "price must be greater than 0"
+        })
         const newProduct = await productService.createProduct(name, price);
         res.status(201).json(newProduct);
 
