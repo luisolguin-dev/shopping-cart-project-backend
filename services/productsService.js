@@ -1,5 +1,18 @@
 const supabase = require('../supabaseClient');
 
+async function createProduct(name, price){
+    const {data, error} = await supabase
+        .from('products')
+        .insert([{name, price}])
+        .select()
+        .single();
+    
+    if (error) throw error;
+
+    return data;
+
+}
+
 async function fetchAll() {
     const {data, error} = await supabase.from('products').select('*');
     if (error) throw error;
@@ -18,4 +31,4 @@ async function fetchAllById(id) {
     return data;
 
 }
-module.exports = { fetchAll, fetchAllById };
+module.exports = { fetchAll, fetchAllById, createProduct };
