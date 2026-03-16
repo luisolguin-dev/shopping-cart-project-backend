@@ -10,4 +10,15 @@ async function getProducts(req, res) {
     }
 }
 
-module.exports = { getProducts };
+async function getProductById(req, res) {
+    try {
+        const id = req.params.id;
+        const product = await productService.fetchAllById(id);
+        res.json(product);
+
+    } catch (err) {
+        console.error()
+    }
+}
+
+module.exports = { getProducts, getProductById };

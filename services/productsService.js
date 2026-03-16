@@ -6,4 +6,16 @@ async function fetchAll() {
     return data;
 }
 
-module.exports = { fetchAll}
+async function fetchAllById(id) {
+    const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single();
+    
+    if (error) throw error;
+
+    return data;
+
+}
+module.exports = { fetchAll, fetchAllById };
