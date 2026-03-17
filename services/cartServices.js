@@ -78,4 +78,17 @@ async function getCart(cartId) {
 
 }
 
-module.exports = {addItemToCart, getCart};
+async function removeItem(itemId) {
+    const {error} = await supabase 
+    .from('cartItems')
+    .delete()
+    .eq('id', itemId);
+
+    if (error) throw error;
+
+    return {
+        deletedItemId: itemId
+    };
+}
+
+module.exports = {addItemToCart, getCart, removeItem};

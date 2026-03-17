@@ -29,5 +29,17 @@ async function getCart(req, res) {
     }
 }
 
+async function removeItem(req, res) {
+    try {
+        const itemId = req.params.itemId;
+        const result = await cartServices.removeItem(itemId);
+        
+        return res.json(result);
+    } catch (err) {
+        res.status(500).json({error: err.message});
+    }
+   
 
-module.exports = { addItemToCart, getCart }
+}
+
+module.exports = { addItemToCart, getCart, removeItem}
