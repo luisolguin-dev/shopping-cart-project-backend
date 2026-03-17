@@ -31,4 +31,8 @@ async function fetchAllById(id) {
     return data;
 
 }
+
+
+
+
 module.exports = { fetchAll, fetchAllById, createProduct };

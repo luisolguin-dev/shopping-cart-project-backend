@@ -37,11 +37,14 @@ async function getProductById(req, res) {
         res.json(product);
 
     } catch (err) {
-        console.error()
+        console.error('Unexpected error', err);
+        res.status(500).json({error: err.message})
     }
 }
 
-module.exports = { getProducts, getProductById, createProduct };
+
+
+module.exports = { getProducts, getProductById, createProduct};
 
 //create cart
 //create cartItem
