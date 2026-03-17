@@ -32,7 +32,6 @@ async function addItemToCart(cartId, productId, quantity) {
         .select()
         .single();
         if (error) throw error;
-        console.log("EL OBJETO RETORNADO AL ACTUALIZAR ES ESTE", data);
         return { cartId, item: data};
     } else {
         const { data, error } = await supabase
@@ -44,7 +43,6 @@ async function addItemToCart(cartId, productId, quantity) {
         .single();
 
         if (error) throw error;
-        console.log("EL OBJETO RETORNADO AL INSERTAR ES ESTE", data);
 
         return {cartId, item: data };
     }
@@ -52,4 +50,32 @@ async function addItemToCart(cartId, productId, quantity) {
 
 }
 
-module.exports = {addItemToCart};
+async function getCart(cartId) {
+    const { data, error } = await supabase
+    .from("cartItems")
+    .select(`
+        quantity,
+        product:products (
+        id,
+        name,
+        price)
+    `)
+    .eq("cartId", cartId);
+
+    if (error) throw error;
+    
+    const items = data.map(item => ({
+        productId: item.product.id,
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity
+    }));
+
+    return {
+        cartId, 
+        items
+    };
+
+}
+
+module.exports = {addItemToCart, getCart};

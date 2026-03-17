@@ -17,5 +17,17 @@ async function addItemToCart(req, res) {
 
 }
 
+async function getCart(req, res) {
+    try{
+        const cartId = req.params.cartId;
+        const cart = await cartServices.getCart(cartId);
 
-module.exports = { addItemToCart }
+        return res.json(cart);
+
+    } catch (err) {
+        res.status(500).json({error: err.message});
+    }
+}
+
+
+module.exports = { addItemToCart, getCart }
