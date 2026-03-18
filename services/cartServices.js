@@ -36,9 +36,9 @@ async function addItemToCart(cartId, productId, quantity) {
     } else {
         const { data, error } = await supabase
         .from("cart_items")
-        .insert([{cartId,
-                  productId, 
-                  quantity}])
+        .insert([{cart_id: cartId,
+                  product_id: productId,
+                  quantity: quantity}])
         .select()
         .single();
 

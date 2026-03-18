@@ -2,10 +2,10 @@ const cartServices = require('../services/cartServices')
 
 async function addItemToCart(req, res) {
     try{
-        const { cartId, productId, quantity } = req.body;
+        const { cart_id, product_id, quantity } = req.body;
         const productAdded = await cartServices.addItemToCart(
-            cartId,
-            productId,
+            cart_id,
+            product_id,
             quantity
         )
         return res.status(201).json(productAdded);
