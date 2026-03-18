@@ -42,4 +42,17 @@ async function removeItem(req, res) {
 
 }
 
-module.exports = { addItemToCart, getCart, removeItem}
+async function getReceipt(req, res) {
+    try {
+        const cartId = req.params.cartId;
+        const receipt = await cartServices.getReceipt(cartId);
+        
+        return res.json(receipt)
+
+    }
+    catch (err) {
+        res.status(500).json({error:err.message})
+    }
+}
+
+module.exports = { addItemToCart, getCart, removeItem, getReceipt}

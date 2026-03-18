@@ -91,4 +91,24 @@ async function removeItem(itemId) {
     };
 }
 
-module.exports = {addItemToCart, getCart, removeItem};
+async function getReceipt(cartId) {
+    const cart = await getCart(cartId);
+
+    const gross = cart.items.reduce((total, item) => {
+        return total + (item.price * item.quantity);
+    }, 0);
+
+    const tax = gross * 0.15;
+
+    const net = gross - tax;
+
+    return ( {
+        cartId,
+        items: cart.items, 
+        gross, 
+        tax, 
+        net
+    });
+}
+
+module.exports = {addItemToCart, getCart, removeItem, getReceipt};
