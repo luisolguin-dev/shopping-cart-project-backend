@@ -14,17 +14,17 @@ async function addItemToCart(cartId, productId, quantity) {
     }
 
     const { data: existingItem, error: findError } = await supabase
-    .from("cartItems")
+    .from("cart_items")
     .select("*")
-    .eq("cartId", cartId)
-    .eq("productId", productId)
+    .eq("cart_id", cartId)
+    .eq("product_id", productId)
     .maybeSingle();
 
     if (findError) throw findError;
 
     if (existingItem) {
         const { data, error} = await supabase
-        .from("cartItems")
+        .from("cart_items")
         .update([{
             quantity: existingItem.quantity + quantity
         }])
@@ -35,7 +35,7 @@ async function addItemToCart(cartId, productId, quantity) {
         return { cartId, item: data};
     } else {
         const { data, error } = await supabase
-        .from("cartItems")
+        .from("cart_items")
         .insert([{cartId,
                   productId, 
                   quantity}])
@@ -52,7 +52,7 @@ async function addItemToCart(cartId, productId, quantity) {
 
 async function getCart(cartId) {
     const { data, error } = await supabase
-    .from("cartItems")
+    .from("cart_items")
     .select(`
         quantity,
         product:products (
@@ -60,7 +60,7 @@ async function getCart(cartId) {
         name,
         price)
     `)
-    .eq("cartId", cartId);
+    .eq("cart_id", cartId);
 
     if (error) throw error;
     
@@ -80,7 +80,7 @@ async function getCart(cartId) {
 
 async function removeItem(itemId) {
     const {error} = await supabase 
-    .from('cartItems')
+    .from('cart_items')
     .delete()
     .eq('id', itemId);
 
@@ -89,26 +89,89 @@ async function removeItem(itemId) {
     return {
         deletedItemId: itemId
     };
+
+
 }
 
-async function getReceipt(cartId) {
-    const cart = await getCart(cartId);
+async function createReceipt(cartId, grossPrice, tax, netPrice) {
+    const {data: receipt, error} = await supabase 
+    .from("receipts")
+    .insert({cart_id: cartId, 
+             gross: grossPrice,
+             tax: tax,
+             net: netPrice
+    })
+    .select()
+    .single();
 
-    const gross = cart.items.reduce((total, item) => {
-        return total + (item.price * item.quantity);
+    if (error) throw error;
+
+    return receipt;
+
+}
+
+async function checkout(cartId) {
+    const cart = await getCart(cartId);
+    if (!cart.items.length) {
+        throw new Error('Cart is empty')
+    }
+
+    const grossPrice = cart.items.reduce((total, item) => {
+        return total + (item.price * item.quantity )
     }, 0);
 
-    const tax = gross * 0.15;
+    const tax = grossPrice * 0.15;
+    const netPrice = grossPrice - tax;
+    const receipt = await createReceipt(cartId, grossPrice, tax, netPrice);
 
-    const net = gross - tax;
+    const itemsReceipt = cart.items.map((item) => ({
+        receipt_id: receipt.id,
+        product_id: item.productId,
+        quantity: item.quantity,
+        price_at_purchase: item.price
 
-    return ( {
-        cartId,
-        items: cart.items, 
-        gross, 
-        tax, 
-        net
+    }))
+
+    const { error: itemsError } = await supabase
+    .from("receipt_items")
+    .insert(itemsReceipt)
+    .select();
+
+    if (itemsError) throw itemsError;
+
+    const {error: deleteCartError} = await supabase 
+    .from("cart_items")
+    .delete()
+    .eq("cart_id", cartId);
+
+    if (deleteCartError) throw deleteCartError;
+    
+    return ({
+        receiptId: receipt.id,
+        message: 'Checkout succesful'
     });
-}
 
-module.exports = {addItemToCart, getCart, removeItem, getReceipt};
+
+}
+module.exports = {addItemToCart, getCart, removeItem, checkout};
+
+
+// async function getReceipt(cartId) {
+//     const cart = await getCart(cartId);
+
+//     const gross = cart.items.reduce((total, item) => {
+//         return total + (item.price * item.quantity);
+//     }, 0);
+
+//     const tax = gross * 0.15;
+
+//     const net = gross - tax;
+
+//     return ( {
+//         cartId,
+//         items: cart.items, 
+//         gross, 
+//         tax, 
+//         net
+//     });
+// }

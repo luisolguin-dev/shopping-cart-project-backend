@@ -42,17 +42,29 @@ async function removeItem(req, res) {
 
 }
 
-async function getReceipt(req, res) {
-    try {
+async function checkout(req, res) {
+    try{
         const cartId = req.params.cartId;
-        const receipt = await cartServices.getReceipt(cartId);
-        
-        return res.json(receipt)
+        console.log(cartId);
+        const receiptStatus = await cartServices.checkout(cartId)
+        return res.json(receiptStatus);
 
-    }
-    catch (err) {
-        res.status(500).json({error:err.message})
+    } catch (err) {
+        res.status(500).json({error: err.message});
     }
 }
 
-module.exports = { addItemToCart, getCart, removeItem, getReceipt}
+// async function getReceipt(req, res) {
+//     try {
+//         const cartId = req.params.cartId;
+//         const receipt = await cartServices.getReceipt(cartId);
+        
+//         return res.json(receipt)
+
+//     }
+//     catch (err) {
+//         res.status(500).json({error:err.message})
+//     }
+// }
+
+module.exports = { addItemToCart, getCart, removeItem, checkout}
